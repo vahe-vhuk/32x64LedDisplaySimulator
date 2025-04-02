@@ -80,13 +80,6 @@ class CircleButton(QPushButton):
                 self.cell_color = chosen_color
             self.update()
             return
-        # If global paint mode is active (set via Ctrl+W), paint with that color.
-        elif self.main_window.paint_mode:
-            self.main_window.record_undo()
-            self.colored = True
-            self.cell_color = self.main_window.paint_color
-            self.update()
-            return
         else:
             if self.on_toggle:
                 self.on_toggle()
@@ -96,7 +89,7 @@ class CircleButton(QPushButton):
     def toggle_color(self):
         if not self.colored:
             self.colored = True
-            self.cell_color = self.default_color
+            self.cell_color = self.main_window.paint_color
         else:
             self.colored = False
             self.cell_color = None
@@ -145,19 +138,12 @@ class TextOverlayDialog(QDialog):
         self.color_button.setStyleSheet("background-color: " + self.text_color.name())
         layout.addRow("Text Color:", self.color_button)
 
-        # NEW: Font selection
-        self.font_button = QPushButton("Select Font", self)
-        self.selected_font = QFont("Monospace")  # default font
-        self.font_button.setText(self.selected_font.family())
-        layout.addRow("Font:", self.font_button)
-
         # Connect signals for real-time updates.
         self.text_edit.textChanged.connect(self.update_overlay)
         self.font_size_spin.valueChanged.connect(self.update_overlay)
         self.line_spacing_spin.valueChanged.connect(self.update_overlay)
         self.empty_cols_spin.valueChanged.connect(self.update_overlay)
         self.color_button.clicked.connect(self.choose_color)
-        self.font_button.clicked.connect(self.choose_font)
 
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok |
                                       QDialogButtonBox.StandardButton.Cancel, self)
@@ -174,21 +160,13 @@ class TextOverlayDialog(QDialog):
             self.color_button.setStyleSheet("background-color: " + self.text_color.name())
             self.update_overlay()
 
-    def choose_font(self):
-        font, ok = QFontDialog.getFont(self.selected_font, self, "Select Font")
-        if ok:
-            self.selected_font = font
-            self.font_button.setText(self.selected_font.family())
-            self.update_overlay()
-
     def update_overlay(self):
         text = self.text_edit.toPlainText()
         font_size = self.font_size_spin.value()
         line_spacing = self.line_spacing_spin.value()
         empty_cols = self.empty_cols_spin.value()
         text_color = self.text_color
-        font_family = self.selected_font.family()
-        self.main_window.apply_text_overlay(text, font_size, line_spacing, empty_cols, text_color, font_family)
+        self.main_window.apply_text_overlay(text, font_size, line_spacing, empty_cols, text_color)
 
 
 class MainWindow(QMainWindow):
@@ -200,7 +178,7 @@ class MainWindow(QMainWindow):
         self.redo_stack = []
         self.default_color = QColor("green")
         self.paint_mode = False
-        self.paint_color = None
+        self.paint_color = QColor("green")
         # New flag for eyedropper mode (activated by holding P)
         self.eyedrop_mode = False
 
@@ -339,7 +317,7 @@ class MainWindow(QMainWindow):
         dialog = TextOverlayDialog(self, self)
         dialog.exec()
 
-    def apply_text_overlay(self, text, font_size, line_spacing, empty_cols, text_color, font):
+    def apply_text_overlay(self, text, font_size, line_spacing, empty_cols, text_color):
         """
         Render the given text into a QPixmap using Pillow, drawing each character individually.
         Letter spacing is controlled by the empty_cols parameter (interpreted as raw pixels).
@@ -363,8 +341,7 @@ class MainWindow(QMainWindow):
         draw = ImageDraw.Draw(image)
 
         # Load the font – update the font_path to a valid pixel font (e.g., a Minecraft font).
-        font_path=font
-        # font_path = "/Users/picsartacademy/Downloads/pixel_unicode/Pixel-UniCode.ttf"  # <-- CHANGE THIS to your font file path.
+        font_path = "/Users/picsartacademy/Downloads/pixel_unicode/Pixel-UniCode.ttf"
         try:
             font = ImageFont.truetype(font_path, font_size)
         except Exception as e:
@@ -508,7 +485,7 @@ class MainWindow(QMainWindow):
                         for i in range(0, len(row_values), group_size):
                             group = "".join(row_values[i:i + group_size])
                             groups.append("2b" + group)
-                        line = ", ".join(groups)
+                        line = ", ".join(groups) + ","
                     f.write(line + "\n")
                 f.write("\n#colors\n")
                 for row in self.buttons[start_row:end_row + 1]:
@@ -626,7 +603,7 @@ class MainWindow(QMainWindow):
                                 new_row.append(current_state[r][c])
                         else:
                             new_row.append((True, (
-                            self.default_color.red(), self.default_color.green(), self.default_color.blue())))
+                                self.default_color.red(), self.default_color.green(), self.default_color.blue())))
                     else:
                         new_row.append(current_state[r][c])
                 new_state.append(new_row)
