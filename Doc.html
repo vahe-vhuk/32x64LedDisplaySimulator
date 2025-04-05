@@ -1,202 +1,182 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>LED Grid Display App – User Manual</title>
+  <title>LED Display Creator – User Guide</title>
   <style>
     body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f9f9f9;
-      margin: 2em;
+      font-family: Arial, sans-serif;
+      background-color: #fcfcfc;
       color: #333;
+      margin: 20px;
       line-height: 1.6;
     }
     h1, h2, h3 {
-      color: #2c3e50;
-      margin-bottom: 0.2em;
+      color: #222;
     }
     h1 {
-      font-size: 2.5em;
-      border-bottom: 2px solid #2c3e50;
-      padding-bottom: 0.2em;
-    }
-    h2 {
-      font-size: 1.8em;
-      margin-top: 1.5em;
-    }
-    h3 {
-      font-size: 1.4em;
-      margin-top: 1em;
-    }
-    p, ul, pre {
-      margin-bottom: 1em;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 10px;
     }
     ul {
-      list-style: disc inside;
-      padding-left: 20px;
+      margin: 0 0 20px 20px;
     }
-    pre {
-      background-color: #ecf0f1;
-      padding: 10px;
-      border-radius: 4px;
-      overflow-x: auto;
-      font-size: 0.9em;
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-bottom: 20px;
     }
-    code {
-      background-color: #ecf0f1;
-      padding: 2px 4px;
-      border-radius: 3px;
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
     }
-    a {
-      color: #2980b9;
-      text-decoration: none;
+    th {
+      background-color: #f4f4f4;
     }
-    a:hover {
-      text-decoration: underline;
+    .hotkey {
+      font-weight: bold;
+      color: #d14;
     }
-    footer {
-      margin-top: 2em;
-      text-align: center;
-      font-size: 0.9em;
-      color: #777;
-      border-top: 1px solid #ddd;
-      padding-top: 1em;
+    .section {
+      margin-bottom: 30px;
     }
   </style>
 </head>
 <body>
-  <h1>LED Grid Display App – User Manual</h1>
-  <p><strong>Version:</strong> 1.0<br>
-     <strong>Date:</strong> 2025-03-29</p>
+  <h1>LED Display Creator – User Guide</h1>
+  <p>This tool is designed for embedded programmers who work with LED displays. It enables you to create static images and text that can be used on LED matrices, and offers three different export formats for seamless integration with your embedded projects. Additionally, collaboration is made simple through easy merging and importing features.</p>
 
-  <section>
-    <h2>Overview</h2>
-    <p>
-      The LED Grid Display App is a Python-based application that simulates an LED display.
-      It features a grid of fixed-size cells (32 rows x 64 columns) where each cell shows a circle that can be toggled on or off.
-      The app supports a range of interactive features including:
-    </p>
-    <ul>
-      <li>Custom cell painting with individual and global color selection.</li>
-      <li>Eyedropper functionality to sample a cell's color.</li>
-      <li>Batch update of all colored cells with a new color.</li>
-      <li>Text overlay rendering using Pillow – users can adjust font size, line spacing, letter spacing, text color, and now choose the font type.</li>
-      <li>File operations: Export, Import, and Merge Import (with per-cell color data).</li>
-      <li>Undo/Redo support.</li>
-    </ul>
-  </section>
+  <h2 class="section">Table of Contents</h2>
+  <ul>
+    <li><a href="#getting-started">Getting Started</a></li>
+    <li><a href="#designing-led-content">Designing LED Content</a></li>
+    <li><a href="#export-formats">Export Formats</a></li>
+    <li><a href="#collaboration">Collaboration</a></li>
+    <li><a href="#keyboard-shortcuts">Keyboard Shortcuts</a></li>
+    <li><a href="#tips-tricks">Tips &amp; Tricks</a></li>
+  </ul>
 
-  <section>
-    <h2>Installation</h2>
-    <p>
-      This application requires Python 3.12 and uses the following libraries:
-    </p>
-    <ul>
-      <li><strong>PyQt6</strong> – For the graphical user interface.</li>
-      <li><strong>NumPy</strong> – For processing grid image data.</li>
-      <li><strong>Pillow</strong> – For text rendering in the text overlay feature.</li>
-      <li><strong>freetype‑py</strong> (optional) – An alternative for advanced text rendering.</li>
-    </ul>
-    <p>
-      To install the required libraries, run:
-    </p>
-    <pre>pip install PyQt6 numpy pillow</pre>
-    <p>
-      (Install freetype‑py only if you choose to use that alternative implementation.)
-    </p>
-  </section>
+  <h2 id="getting-started" class="section">Getting Started</h2>
+  <ul>
+    <li><strong>Launch the Application:</strong> Run the program (e.g., using <code>python main.py</code> or your favorite IDE).</li>
+    <li>The main window opens with a grid representing your LED display matrix. This grid serves as your canvas for designing images and text.</li>
+  </ul>
 
-  <section>
-    <h2>Font Source</h2>
-    <p>
-      The app uses a pixel-style font for text overlay rendering. We recommend using the
-      <a href="https://www.dafont.com/pixel-unicode.font" target="_blank">Pixel Unicode font</a> from Dafont.
-      For example, download it and update the <code>font_path</code> in the code to point to its location.
-    </p>
-  </section>
+  <h2 id="designing-led-content" class="section">Designing LED Content</h2>
+  <ul>
+    <li><strong>Paint Your Grid:</strong> Click individual cells to toggle them on or off. You can set colors to simulate multi-color LED displays.</li>
+    <li><strong>Text Overlays:</strong> Use the text overlay tool to add static text. Customize the font, size, and style to match your LED display requirements.</li>
+    <li><strong>Select &amp; Edit:</strong> Click on row or column labels to select entire lines. Hold the <span class="hotkey">Shift</span> key to select a range of rows or columns for batch editing.</li>
+    <li><strong>Image Import:</strong> Drag and drop an image file (PNG, JPEG, etc.) onto the window to convert it into an LED display pattern.</li>
+  </ul>
 
-  <section>
-    <h2>Features & Use Cases</h2>
-    <h3>Grid Interaction</h3>
-    <ul>
-      <li><strong>Toggle Cell State:</strong> Click on a cell to toggle its state (off = black; on = colored, default green).</li>
-      <li><strong>Ctrl+Click on a Cell:</strong> Open a color dialog for that specific cell to choose a custom color.</li>
-      <li><strong>Global Paint Mode (Ctrl+W):</strong> Press <code>Ctrl+W</code> to select a global paint color. In this mode, subsequent cell clicks paint them with the chosen color.</li>
-      <li><strong>Eyedropper Mode (P):</strong> Hold the <code>P</code> key and click a cell to sample its color and set it as the global paint color.</li>
-      <li><strong>Change All Colored Cells (Ctrl+F):</strong> Press <code>Ctrl+F</code> to open a color dialog that updates all currently colored cells to the new color.</li>
-    </ul>
+  <h2 id="export-formats" class="section">Export Formats</h2>
+  <p>The tool provides three export formats to suit various embedded system needs:</p>
+  <ul>
+    <li><strong>Plain Format:</strong> Exports a simple binary grid, where each cell is either on (1) or off (0).</li>
+    <li><strong>Formatted Format:</strong> Exports the grid in a grouped binary format for easier readability and integration.</li>
+    <li><strong>Colored Format:</strong> Exports color-coded data, mapping the colors to a predefined palette, perfect for multi-color LED displays.</li>
+  </ul>
+  <p>Choose the export format that best fits your target embedded system.</p>
 
-    <h3>Text Overlay</h3>
-    <ul>
-      <li><strong>Text Overlay Dialog (Ctrl+I):</strong> Press <code>Ctrl+I</code> to open a dialog for inserting plain text (supports Unicode) onto the grid.
-        In this dialog, you can adjust:
+  <h2 id="collaboration" class="section">Collaboration</h2>
+  <ul>
+    <li><strong>Merging Designs:</strong> Easily merge imported grid states with your current design, making team collaboration and iterative design simpler.</li>
+    <li><strong>Import/Export:</strong> Share design files with colleagues using the provided import and export features to work on projects collaboratively.</li>
+  </ul>
+
+  <h2 id="keyboard-shortcuts" class="section">Keyboard Shortcuts</h2>
+  <p>Speed up your workflow using these shortcuts:</p>
+  <table>
+    <tr>
+      <th>Shortcut</th>
+      <th>Action</th>
+    </tr>
+    <tr>
+      <td><span class="hotkey">Ctrl+S</span></td>
+      <td>Export the grid state.</td>
+    </tr>
+    <tr>
+      <td><span class="hotkey">Ctrl+O</span></td>
+      <td>Import a saved grid state.</td>
+    </tr>
+    <tr>
+      <td><span class="hotkey">Ctrl+M</span></td>
+      <td>Merge an external grid state with your current design.</td>
+    </tr>
+    <tr>
+      <td><span class="hotkey">Ctrl+R</span></td>
+      <td>Reset the grid to its default (all cells off).</td>
+    </tr>
+    <tr>
+      <td><span class="hotkey">Ctrl+U</span></td>
+      <td>Load a PNG image into the grid.</td>
+    </tr>
+    <tr>
+      <td><span class="hotkey">Ctrl+I</span></td>
+      <td>Open the Text Overlay dialog to add or edit text.</td>
+    </tr>
+    <tr>
+      <td><span class="hotkey">Ctrl+C</span></td>
+      <td>Copy the grid state in a formatted style to the clipboard.</td>
+    </tr>
+    <tr>
+      <td><span class="hotkey">Ctrl+Z</span></td>
+      <td>Undo the last change.</td>
+    </tr>
+    <tr>
+      <td><span class="hotkey">Ctrl+Y</span></td>
+      <td>Redo the last undone change.</td>
+    </tr>
+    <tr>
+      <td><span class="hotkey">Ctrl+W</span></td>
+      <td>Set a global paint color for drawing cells.</td>
+    </tr>
+    <tr>
+      <td><span class="hotkey">Ctrl+F</span></td>
+      <td>Change the color of all active (lit) cells.</td>
+    </tr>
+    <tr>
+      <td><span class="hotkey">Ctrl+E</span></td>
+      <td>Change the color of cells with the picked color.</td>
+    </tr>
+    <tr>
+      <td><span class="hotkey">Ctrl+X</span></td>
+      <td>Apply a predefined color palette to the grid.</td>
+    </tr>
+    <tr>
+      <td><span class="hotkey">Ctrl + Arrow Keys</span></td>
+      <td>Shift the entire grid in the chosen direction.</td>
+    </tr>
+    <tr>
+      <td>Arrow Keys (no modifiers)</td>
+      <td>
         <ul>
-          <li><em>Font Size (cells):</em> The pixel height for each character.</li>
-          <li><em>Line Spacing (rows):</em> Extra vertical pixels between lines.</li>
-          <li><em>Empty Cols (cols):</em> Extra horizontal pixels between characters.</li>
-          <li><em>Text Color:</em> The color used to render the text.</li>
-          <li><em>Font Type:</em> Use the <strong>Select Font</strong> button to choose a font type (e.g. a Minecraft or Pixel Unicode font) for rendering the text overlay.</li>
+          <li>Shift selected rows or columns.</li>
+          <li>If both rows and columns are selected, only the intersection is affected.</li>
         </ul>
-      </li>
-      <li>The text is rendered using Pillow (PIL) by drawing each character individually with controlled spacing, then mapping the rendered image onto the grid cells.</li>
-    </ul>
+      </td>
+    </tr>
+    <tr>
+      <td><span class="hotkey">P</span></td>
+      <td>Activate the eyedropper tool to pick a cell’s color.</td>
+    </tr>
+    <tr>
+      <td><span class="hotkey">Escape</span></td>
+      <td>Exit any active mode (painting, eyedropper, etc.).</td>
+    </tr>
+  </table>
 
-    <h3>File Operations</h3>
-    <ul>
-      <li><strong>Export (Ctrl+S):</strong> Save the current grid state to a text file. The export includes:
-        <ul>
-          <li>Main grid data (each cell marked "1" for colored, "0" for off) in either Plain or Formatted mode.</li>
-          <li>A separate color section (after a <code>#colors</code> header) with per-cell RGB values.</li>
-        </ul>
-      </li>
-      <li><strong>Import (Ctrl+O):</strong> Load a grid state from a file.</li>
-      <li><strong>Merge Import (Ctrl+M):</strong> Import grid data from a file and merge it with the current grid state—cells turned on in the imported file override the current state.</li>
-      <li><strong>Reset (Ctrl+R):</strong> Clear the grid, resetting all cells to off (black).</li>
-      <li><strong>Undo (Ctrl+Z) and Redo (Ctrl+Y):</strong> Step backward or forward through changes.</li>
-    </ul>
-  </section>
+  <h2 id="tips-tricks" class="section">Tips &amp; Tricks</h2>
+  <ul>
+    <li><strong>Multi-Selection:</strong> Hold the <span class="hotkey">Shift</span> key while clicking row or column headers to select a range.</li>
+    <li><strong>Experiment:</strong> Use the undo/redo features to try different designs without losing your progress.</li>
+    <li><strong>Collaborate:</strong> Share your exported design files with colleagues and merge changes easily using the merge import feature.</li>
+    <li><strong>Optimize for LED Displays:</strong> Use the text overlay tool and color export options to tailor your design to your specific LED display hardware requirements.</li>
+  </ul>
 
-  <section>
-    <h2>Hotkeys Summary</h2>
-    <ul>
-      <li><code>Left Click</code>: Toggle cell state.</li>
-      <li><code>Ctrl+Click</code>: Open a color dialog for the clicked cell.</li>
-      <li><code>Ctrl+W</code>: Activate global paint mode to set a color for future cell clicks.</li>
-      <li><code>P</code>: Hold to enter eyedropper mode; click a cell to sample its color.</li>
-      <li><code>Ctrl+F</code>: Open a color dialog to update all colored cells with a new color.</li>
-      <li><code>Ctrl+I</code>: Open the text overlay dialog (now including font type selection).</li>
-      <li><code>Ctrl+S</code>: Export the current grid state to a file.</li>
-      <li><code>Ctrl+O</code>: Import a grid state from a file.</li>
-      <li><code>Ctrl+M</code>: Merge import grid state with the current grid.</li>
-      <li><code>Ctrl+R</code>: Reset the grid.</li>
-      <li><code>Ctrl+Z</code>: Undo the last change.</li>
-      <li><code>Ctrl+Y</code>: Redo the change.</li>
-      <li><code>Escape</code>: Cancel global paint/eyedropper mode.</li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>Running the Application</h2>
-    <p>
-      To run the application, navigate to the directory containing <code>main.py</code> and execute:
-    </p>
-    <pre>python main.py</pre>
-    <p>
-      The main window will display the LED grid. Use the above hotkeys and menus to interact with the grid.
-    </p>
-  </section>
-
-  <section>
-    <h2>Troubleshooting</h2>
-    <ul>
-      <li>If text overlay appears misaligned or the characters do not render correctly, verify that the <code>font_path</code> in the code is set to a valid font file (e.g., the Pixel Unicode font from <a href="https://www.dafont.com/pixel-unicode.font" target="_blank">Dafont</a>).</li>
-      <li>If hotkeys are unresponsive, ensure the main window is focused and that no other application is intercepting the key combinations.</li>
-      <li>For any crashes or unexpected behavior, check the console for error messages and confirm that all required libraries are installed.</li>
-    </ul>
-  </section>
-
-  <footer>
-    <p>&copy; 2025 LED Grid Display App. All rights reserved.</p>
-  </footer>
+  <hr>
+  <p><em>End of User Guide</em></p>
 </body>
 </html>
