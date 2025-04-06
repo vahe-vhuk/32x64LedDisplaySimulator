@@ -5,8 +5,8 @@ from PyQt6.QtWidgets import (
     QSpinBox, QComboBox, QDialogButtonBox, QLabel, QFrame,
     QColorDialog, QPlainTextEdit, QCheckBox, QDoubleSpinBox
 )
-from PyQt6.QtGui import QAction, QPainter, QColor, QFont, QPixmap
-from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QAction, QPainter, QColor, QFont, QPalette
+from PyQt6.QtCore import Qt, QTimer
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -284,6 +284,11 @@ class MainWindow(QMainWindow):
         self.row_labels = []
         self.col_labels = []
 
+        # Initialize GameOfLifee mode state and timer.
+        self.game_of_life_mode = False
+        self.game_of_life_timer = QTimer(self)
+        self.game_of_life_timer.timeout.connect(self.game_of_life_step)
+
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
         grid_layout = QGridLayout(central_widget)
@@ -500,6 +505,92 @@ class MainWindow(QMainWindow):
         grid_size_action.triggered.connect(self.change_grid_size)
         options_menu.addAction(grid_size_action)
 
+        # New menu action to toggle GameOfLifee mode.
+        game_of_life_action = QAction("GameOfLifee Mode", self)
+        game_of_life_action.setShortcut("Ctrl+G")
+        game_of_life_action.triggered.connect(self.toggle_game_of_life_mode)
+        options_menu.addAction(game_of_life_action)
+
+        # New Theme menu.
+        theme_menu = menu_bar.addMenu("Theme")
+        light_action = QAction("Light Mode", self)
+        light_action.triggered.connect(self.set_light_theme)
+        theme_menu.addAction(light_action)
+        dark_action = QAction("Dark Mode", self)
+        dark_action.triggered.connect(self.set_dark_theme)
+        theme_menu.addAction(dark_action)
+        auto_action = QAction("Auto Mode", self)
+        auto_action.triggered.connect(self.set_auto_theme)
+        theme_menu.addAction(auto_action)
+
+    def toggle_game_of_life_mode(self):
+        """Toggle the Game of Life simulation mode."""
+        self.game_of_life_mode = not self.game_of_life_mode
+        if self.game_of_life_mode:
+            # Start timer with an update every 500ms (adjust as desired)
+            self.game_of_life_timer.start(500)
+        else:
+            self.game_of_life_timer.stop()
+
+    def game_of_life_step(self):
+        """Compute one generation update based on Conway's Game of Life rules."""
+        state = self.get_grid_state()
+        new_state = []
+        for r in range(self.num_rows):
+            new_row = []
+            for c in range(self.num_cols):
+                live_neighbors = 0
+                # Check all 8 neighbors.
+                for dr in (-1, 0, 1):
+                    for dc in (-1, 0, 1):
+                        if dr == 0 and dc == 0:
+                            continue
+                        nr, nc = r + dr, c + dc
+                        if 0 <= nr < self.num_rows and 0 <= nc < self.num_cols:
+                            if state[nr][nc][0]:
+                                live_neighbors += 1
+                cell_alive = state[r][c][0]
+                # Apply Game of Life rules:
+                # 1. Underpopulation or overpopulation: a live cell dies.
+                if cell_alive and (live_neighbors < 2 or live_neighbors > 3):
+                    new_row.append((False, (0, 0, 0)))
+                # 2. Reproduction: a dead cell with exactly 3 live neighbors becomes alive.
+                elif not cell_alive and live_neighbors == 3:
+                    new_row.append((True, (0, 255, 0)))  # Default new cell color.
+                # 3. Otherwise, the cell stays the same.
+                else:
+                    new_row.append(state[r][c])
+            new_state.append(new_row)
+        self.record_undo()  # Save current state to allow undo.
+        self.set_grid_state(new_state)
+
+    def set_light_theme(self):
+        """Set the application to light mode using the system default palette."""
+        app = QApplication.instance()
+        app.setPalette(app.style().standardPalette())
+
+    def set_dark_theme(self):
+        """Set a dark theme for the application."""
+        darkPalette = QPalette()
+        darkPalette.setColor(QPalette.ColorRole.Window, QColor(53, 53, 53))
+        darkPalette.setColor(QPalette.ColorRole.WindowText, Qt.GlobalColor.white)
+        darkPalette.setColor(QPalette.ColorRole.Base, QColor(25, 25, 25))
+        darkPalette.setColor(QPalette.ColorRole.AlternateBase, QColor(53, 53, 53))
+        darkPalette.setColor(QPalette.ColorRole.ToolTipBase, Qt.GlobalColor.white)
+        darkPalette.setColor(QPalette.ColorRole.ToolTipText, Qt.GlobalColor.white)
+        darkPalette.setColor(QPalette.ColorRole.Text, Qt.GlobalColor.white)
+        darkPalette.setColor(QPalette.ColorRole.Button, QColor(53, 53, 53))
+        darkPalette.setColor(QPalette.ColorRole.ButtonText, Qt.GlobalColor.white)
+        darkPalette.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
+        darkPalette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
+        darkPalette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
+        darkPalette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.black)
+        QApplication.instance().setPalette(darkPalette)
+
+    def set_auto_theme(self):
+        """Set the theme to auto mode (currently resets to the system default)."""
+        self.set_light_theme()
+
     def update_row_label_styles(self):
         for lbl in self.row_labels:
             if lbl.row_index in self.selected_rows:
@@ -682,7 +773,7 @@ class MainWindow(QMainWindow):
                 return
 
         if self.selected_columns and not self.selected_rows and event.modifiers() == Qt.KeyboardModifier.NoModifier and event.key() in (
-        Qt.Key.Key_Left, Qt.Key.Key_Right, Qt.Key.Key_Up, Qt.Key.Key_Down):
+                Qt.Key.Key_Left, Qt.Key.Key_Right, Qt.Key.Key_Up, Qt.Key.Key_Down):
             if event.key() == Qt.Key.Key_Left:
                 self.move_selected_columns_left()
             elif event.key() == Qt.Key.Key_Right:
@@ -694,7 +785,7 @@ class MainWindow(QMainWindow):
             return
 
         if self.selected_rows and not self.selected_columns and event.modifiers() == Qt.KeyboardModifier.NoModifier and event.key() in (
-        Qt.Key.Key_Up, Qt.Key.Key_Down, Qt.Key.Key_Left, Qt.Key.Key_Right):
+                Qt.Key.Key_Up, Qt.Key.Key_Down, Qt.Key.Key_Left, Qt.Key.Key_Right):
             if event.key() == Qt.Key.Key_Up:
                 self.move_selected_rows_up()
             elif event.key() == Qt.Key.Key_Down:
@@ -943,7 +1034,7 @@ class MainWindow(QMainWindow):
                 elif mode == "Plain":
                     for row in self.buttons[start_row:end_row + 1]:
                         line = " ".join("1" if (
-                                    btn.colored and btn.cell_color is not None and btn.cell_color.name() != "#000000") else "0"
+                                btn.colored and btn.cell_color is not None and btn.cell_color.name() != "#000000") else "0"
                                         for btn in row)
                         f.write(line + "\n")
                     f.write("\n#colors\n")
@@ -959,7 +1050,7 @@ class MainWindow(QMainWindow):
                 else:
                     for row in self.buttons[start_row:end_row + 1]:
                         row_values = ["1" if (
-                                    btn.colored and btn.cell_color is not None and btn.cell_color.name() != "#000000") else "0"
+                                btn.colored and btn.cell_color is not None and btn.cell_color.name() != "#000000") else "0"
                                       for btn in row]
                         groups = []
                         group_size = 8
@@ -1156,7 +1247,7 @@ class MainWindow(QMainWindow):
                     for c in range(min(len(current_state[r]), len(imported_state[r]))):
                         if imported_state[r][c]:
                             new_row.append((True, (
-                            self.default_color.red(), self.default_color.green(), self.default_color.blue())))
+                                self.default_color.red(), self.default_color.green(), self.default_color.blue())))
                         else:
                             new_row.append(current_state[r][c])
                     new_state.append(new_row)
@@ -1211,7 +1302,7 @@ class MainWindow(QMainWindow):
                                     new_row.append(current_state[r][c])
                             else:
                                 new_row.append((True, (
-                                self.default_color.red(), self.default_color.green(), self.default_color.blue())))
+                                    self.default_color.red(), self.default_color.green(), self.default_color.blue())))
                         else:
                             new_row.append(current_state[r][c])
                     new_state.append(new_row)
